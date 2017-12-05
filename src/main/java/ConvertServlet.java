@@ -1,9 +1,13 @@
+import model.ErrorMessage;
+import model.NumberModel;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.client.*;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -34,19 +38,42 @@ public class ConvertServlet extends HttpServlet {
             //System.out.println("roman");
             Response response = romanTarget
                     .resolveTemplate("number",number)
-                    .request().get(Response.class);
-            String convertedNumber = response.readEntity(String.class);
-            //System.out.println(convertedNumber);
-            out1.println(convertedNumber);
+                    .request(MediaType.APPLICATION_JSON).get();
+
+            if(response.getStatus() == 200) {
+                NumberModel numberModel = response.readEntity(NumberModel.class);
+                String convertedNumber = numberModel.getConvertedNumber();
+                //System.out.println(convertedNumber);
+                out1.println(convertedNumber);
+            }
+
+            else {
+                ErrorMessage errorMessage = response.readEntity(ErrorMessage.class);
+                String message = errorMessage.getErrorMessage();
+                out1.println(message);
+            }
 
         }
 
         else {
             Response response = hexadecimalTarget
                     .resolveTemplate("number",number)
-                    .request().get(Response.class);
-            String convertedNumber = response.readEntity(String.class);
-            out1.println(convertedNumber);
+                    .request(MediaType.APPLICATION_JSON).get();
+
+            if(response.getStatus() == 200) {
+                NumberModel numberModel = response.readEntity(NumberModel.class);
+                String convertedNumber = numberModel.getConvertedNumber();
+                //System.out.println(convertedNumber);
+                out1.println(convertedNumber);
+            }
+
+            else {
+                ErrorMessage errorMessage = response.readEntity(ErrorMessage.class);
+                String message = errorMessage.getErrorMessage();
+                out1.println(message);
+            }
+
+
         }
 
     }
